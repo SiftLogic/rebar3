@@ -332,7 +332,10 @@ resolve_version(Dep, undefined, _OldHash, Hash, HexRegistry, State) ->
               end
           end,
     handle_missing_no_exception(Fun, Dep, State);
-resolve_version(Dep, DepVsn, _OldHash, Hash, HexRegistry, State) ->
+resolve_version(Dep, DepVsn0, _OldHash, Hash, HexRegistry, State) ->
+    io:format("~p ~p~n", [Dep, DepVsn0]),
+    DepVsn = hd(binary:split(DepVsn0, <<" or ">>)),
+    io:format("~p ~p~n", [DepVsn0, DepVsn]),
     case valid_vsn(DepVsn) of
         false ->
             {error, {invalid_vsn, DepVsn}};

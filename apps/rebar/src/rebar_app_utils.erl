@@ -193,6 +193,8 @@ parse_dep(Dep, Parent, DepsDir, State, Locks, Level) ->
                     parse_dep(Parent, LockedDep, DepsDir, true, State)
             end
     end.
+trim_version(Bin) ->
+    hd(binary:split(Bin, <<" or ">>)).
 
 %% @doc converts a dependency definition and a location for it on disk
 %% into an app info tuple representing it.
@@ -204,7 +206,7 @@ parse_dep(Dep, Parent, DepsDir, State, Locks, Level) ->
       State :: rebar_state:t().
 parse_dep(Parent, {Name, Vsn, {pkg, PkgName}}, DepsDir, IsLock, State) ->
     {PkgName1, PkgVsn} = {rebar_utils:to_binary(PkgName),
-                          rebar_utils:to_binary(Vsn)},
+                          trim_version(rebar_utils:to_binary(Vsn))},
     dep_to_app(Parent, DepsDir, Name, PkgVsn, {pkg, PkgName1, PkgVsn, undefined ,undefined}, IsLock, State);
 parse_dep(Parent, {Name, {pkg, PkgName}}, DepsDir, IsLock, State) ->
     %% Package dependency with different package name from app name
@@ -212,7 +214,7 @@ parse_dep(Parent, {Name, {pkg, PkgName}}, DepsDir, IsLock, State) ->
 parse_dep(Parent, {Name, Vsn}, DepsDir, IsLock, State) when is_list(Vsn); is_binary(Vsn) ->
     %% Versioned Package dependency
     {PkgName, PkgVsn} = {rebar_utils:to_binary(Name),
-                         rebar_utils:to_binary(Vsn)},
+                         trim_version(rebar_utils:to_binary(Vsn))},
     dep_to_app(Parent, DepsDir, PkgName, PkgVsn, {pkg, PkgName, PkgVsn, undefined, undefined}, IsLock, State);
 parse_dep(Parent, Name, DepsDir, IsLock, State) when is_atom(Name); is_binary(Name) ->
     %% Unversioned package dependency
